@@ -84,7 +84,7 @@ const names: readonly string[] = ["1", "2"];
  */
 const player3: [string, number, boolean] = ["yujin", 12, true];
 // player3[0] = 1; // 첫번째 요소가 string 타입이기 때문에 에러 발생
-player3[0] = "hi"; 
+player3[0] = "hi";
 
 
 /**
@@ -95,7 +95,7 @@ let i : null = null;
 
 
 /**
- * any type 
+ * any type
  * 어떤 타입이든 사용할 수 있다. 사용을 지양해야 한다.
  */
 let j : any = 'any';
@@ -103,7 +103,7 @@ let j : any = 'any';
 
 /**
  * unknown type
- * 어떤 타입일지 모를 때 사용한다. 
+ * 어떤 타입일지 모를 때 사용한다.
  * 작업 하기 전에 이 변수의 타입을 먼저 확인해야 한다.
  */
 let k : unknown;
@@ -141,7 +141,6 @@ function hi () : never {
   // return 'hi' // never 타입이기 때문에 return 값이 있으면 에러 발생
   throw new Error("err")
 }
-
 function bye (name:string|number) {
   if (typeof name === 'string') name;
   else if (typeof name === 'number') name;
@@ -150,7 +149,7 @@ function bye (name:string|number) {
 
 
 /**
- * call signiture
+ * call signature
  * 파라미터와 반환값의 type을 정의해주는 것
  */
 type Add = (a:number, b:number) => number
@@ -159,9 +158,11 @@ const add: Add = (a, b) => a + b;
 
 /**
  * overloading
- * 함수가 여러개의 서로 다른 call signiture를 가지고 있을 때 발생
+ * 함수가 여러개의 서로 다른 call signature 가지고 있을 때 발생
+ * call signature가 여러개일 때 아래와 같이 작성할 수 있다.
  * 외부 라이브러리나 패키지를 사용할 때 발생
  */
+// example 1
 type Add2 = {
   (a: number, b: number) : number
   (a: number, b: string) : number
@@ -171,4 +172,71 @@ const add2: Add2 = (a, b) => {
   if (typeof b === 'string') return a;
   else if (typeof b === 'number') return a + b;
   else return b;
+}
+
+
+// example 2
+type Config = {
+  path: string,
+  state: object
+}
+type Push = {
+  (path:string):void,
+  (config:Config):void
+}
+// 파마리턱 type이 두가지이므로 타입별로 분기처리한다.
+const push:Push = (config) => {
+  if (typeof config === 'string') {console.log(config)}
+  else {console.log(config.path)}
+}
+
+
+// example 3 - 파마리터 개수가 다를 때
+type Add3 = {
+  (a:number, b:number): number,
+  (a:number, b:number, c:number): number
+}
+// c가 옵션 사항이라는 것과 type을 명시해줘야 함
+const add3:Add3 = (a, b, c?:number) => {
+  if (c) return a + b + c
+  return a + b
+}
+add3(1, 2);
+add3(1, 2, 3);
+
+
+/**
+ * 다형성 (Polymorphism)
+ * generic type을 사용한다. (<->concrete type)
+ * 확실한 type을 모를 때 사용한다. 타입스크립트가 type을 추론하게 한다. 타입스크립트가 인식한 type으로 바꿔준다.
+ * <Generic> 형태로 사용한다.
+ */
+// example 1
+type SuperPrint = <Generic>(arr: Generic[]) => void
+const superPrint: SuperPrint = (arr) => {
+  arr.forEach(i => console.log(i))
+}
+
+superPrint([1, 2, 3]);
+superPrint([true, false, true]);
+superPrint(["a", "b", "c"]);
+superPrint([1, 2, true, false, "hello"]);
+
+
+// example 2
+type SuperPrint2 = <T>(arr: T[]) => T
+const superPrint2:SuperPrint2 = (arr) => {
+  return arr[0];
+}
+
+const o = superPrint2([1, 2, 3]);
+const p = superPrint2([true, false, true]);
+const q = superPrint2(["a", "b", "c"]);
+const r = superPrint2([1, 2, true, false, "hello"]);
+
+
+// example 3
+type SuperPrint3 = <T, M>(arr: T[], b: M) => T
+const superPrint3:SuperPrint3 = (arr) => {
+  return arr[0];
 }
